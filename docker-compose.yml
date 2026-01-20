@@ -64,6 +64,7 @@ services:
       PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://prefect:prefect@postgres:5432/prefect
       PREFECT_SERVER_API_HOST: 0.0.0.0
       PREFECT_API_URL: http://localhost:4200/api
+      MONGO_URI: "mongodb://localhost:27017"
     command: prefect server start --host 0.0.0.0
     depends_on:
       postgres:
@@ -76,10 +77,48 @@ services:
       timeout: 10s
       retries: 5
 
+  mongodb:
+    image: mongodb/mongodb-atlas-local
+    hostname: mongodb
+    environment:
+      - MONGODB_INITDB_ROOT_USERNAME=user
+      - MONGODB_INITDB_ROOT_PASSWORD=pass
+    ports:
+      - 27017:27017
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - db:/data/db
+      - configdb:/data/configdb
+      - mongot:/data/mongot
+    networks:
+      - elt-network
+
+  flask-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask-api
+    environment:
+      - MONGO_URI=mongodb://user:pass@mongodb:27017
+      - DATABASE_NAME=bigdata-etl
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_SECURE=False
+    ports:
+      - "5000:5000"
+    depends_on:
+      - prefect-server
+      - mongodb
+    networks:
+      - elt-network
+
 volumes:
   minio_data:
   prefect_db:
-
+  db:
+  configdb:
+  mongot:
 networks:
   elt-network:
     driver: bridge

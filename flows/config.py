@@ -1,5 +1,5 @@
 import os
-from  pathlib import Path
+from pathlib import Path
 
 from dotenv import load_dotenv
 from minio import Minio
@@ -17,12 +17,29 @@ SQLITE_DB_PATH = os.getenv("SQLITE_DB_PATH", "./data/database/analytics.db")
 
 # Prefect configuration
 PREFECT_API_URL = os.getenv("PREFECT_API_URL", "http://localhost:4200/api")
+MONGO_URI = os.getenv(
+    "MONGO_URI",
+    "mongodb://localhost:27017"
+)
 
 # Buckets
 BUCKET_SOURCES = "sources"
 BUCKET_BRONZE = "bronze"
 BUCKET_SILVER = "silver"
 BUCKET_GOLD = "gold"
+
+#Collections & database
+DATABASE_NAME = os.getenv("DATABASE_NAME", "bigdata-etl")
+COLLECTION_NAME = os.getenv("COLLECTION_NAME", "bigdata")
+ENDPOINTS_LIST = [
+    "agg_monthly",
+    "dim_client",
+    "dim_date",
+    "fact_purchase",
+    "kpis",
+    "revenue_by_country",
+    "stats_by_product"
+]
 
 def get_minio_client() -> Minio:
     return Minio(

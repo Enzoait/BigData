@@ -3,7 +3,7 @@ from pathlib import Path
 
 from prefect import flow, task
 
-from config import BUCKET_SILVER, BUCKET_GOLD, get_minio_client
+from flows.config import BUCKET_SILVER, BUCKET_GOLD, get_minio_client
 import pandas as pd
 import numpy as np
 
